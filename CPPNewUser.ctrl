@@ -1,0 +1,26 @@
+/**
+ * Created by nross5 on 10/15/18.
+ */
+({
+    doInit: function(component, event, helper) {
+    },
+    showSpinner: function(component, event, helper) {
+        component.set("v.isLoading", true);
+    },
+    hideSpinner: function(component, event, helper) {
+        component.set("v.isLoading", false);
+    },
+    handleOnSubmit: function(component, event, helper) {
+        var validCaptcha = event.getParam("success");
+        if(validCaptcha) {
+            helper.submitUser(component, event);
+        }
+    },
+    handleCaptcha: function(component, event, helper) {
+        var validForm = helper.validateForm(component, event);
+        if(validForm) {
+            var childComponent = component.find("captcha");
+            childComponent.handleCaptcha();
+        }
+    }
+});
