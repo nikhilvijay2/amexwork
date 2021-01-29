@@ -1,0 +1,23 @@
+<apex:page controller="MathsOpps">
+    <apex:form >
+    <apex:pageBlock title="Calculator">
+        
+        <apex:pageBlockSection columns="1" collapsible="false" title="Simple Operations">
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel >Enter a value</apex:outputLabel>
+                <apex:inputText >{!aValue}</apex:inputText>
+            </apex:pageBlockSectionItem>
+            
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel >Enter b value</apex:outputLabel>
+                <apex:inputText >{!bValue}</apex:inputText>
+            </apex:pageBlockSectionItem>
+            
+            <apex:pageBlockSectionItem >
+            <apex:outputLabel > You have performed {!Operation} of {!aValue} and {!bValue} and the result is {!result}
+                </apex:outputLabel>
+            </apex:pageBlockSectionItem>
+        </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

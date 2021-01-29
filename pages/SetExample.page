@@ -1,0 +1,9 @@
+<apex:page controller="SetExample">
+    <apex:pageBlock >
+    <apex:pageblockTable value="{!newset}" var="a">
+        <apex:column value="{!a}"/>
+        
+        
+        </apex:pageblockTable>
+    </apex:pageBlock>
+</apex:page>

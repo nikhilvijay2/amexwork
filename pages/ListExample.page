@@ -1,0 +1,8 @@
+<apex:page controller="ListExample">
+    <apex:pageBlock >
+        <apex:pageBlockTable value="{!result}" var="a">
+            <apex:column value="{!a.Name}"/>
+        </apex:pageBlockTable>
+        
+    </apex:pageBlock>
+</apex:page>

@@ -1,0 +1,3 @@
+<apex:page controller="VFExample">
+    <apex:outputLabel > My Name is {!name}</apex:outputLabel>
+</apex:page>

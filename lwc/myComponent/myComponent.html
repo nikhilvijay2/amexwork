@@ -1,0 +1,17 @@
+<!--
+ - Created by nikhi on 7/18/2020.
+ -->
+
+<!-- contactsList -->
+<template>
+  <template if:true={conList}>
+
+  </template>
+  <lightning-datatable key-field="id"
+                       data={data}
+                       columns={columns}
+                       onrowselection={getSelectedRow}
+                       record-id={recordId}
+                       object-api-name="Account"
+  </lightning-datatable>
+</template>

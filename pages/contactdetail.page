@@ -1,0 +1,12 @@
+<apex:page controller="contactdetail">
+    <apex:form >
+    <apex:pageBlock rendered="{!NOT(ISNULL(cntList))}">
+        <apex:pageBlockTable value="{!cntList}" var="c">
+            <apex:column value="{!c.Name}"/>
+            <apex:column value="{!c.account.name}"/>
+            <apex:column value="{!c.account.Industry}"/>
+        </apex:pageBlockTable>
+        </apex:pageBlock>
+        <apex:commandButton value="click" action="{!show}"/>
+    </apex:form>
+</apex:page>

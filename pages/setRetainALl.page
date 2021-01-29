@@ -1,0 +1,8 @@
+<apex:page controller="setRetainAll">
+    
+    <apex:pageBlock >
+        <apex:outputLabel >{!test}</apex:outputLabel>
+        <apex:dataList value="{!strSet}" var="a">{!a}
+        </apex:dataList>
+    </apex:pageBlock>
+</apex:page>

@@ -1,0 +1,8 @@
+<apex:page controller="Pagereference">
+    <apex:form >
+    <apex:outputLabel >My name is </apex:outputLabel>
+        <apex:inputText >{!name}</apex:inputText>
+        <apex:commandButton value="click" reRender="one" action="{!show}"/>
+            <apex:outputLabel id="one">My name is {!name}</apex:outputLabel>
+    </apex:form>
+</apex:page>
