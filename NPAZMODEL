@@ -1,0 +1,196 @@
+/**
+* Created by renuka.n01 on 9/1/2020.
+*/
+
+public with sharing class NPAZModel {
+    public class AccountRequestData {
+        public String gnsSourceId {get; set;}
+        public String instTypeId {get; set;}
+        public String jobId {get; set;}
+        public String orgId {get; set;}
+        public String orgName {get; set;}
+        public String regionId {get; set;}
+    }
+    public class AccountResponseData {
+        public String orgId {get;set;}
+        public String statusCode {get;set;}
+        public String statusMsg {get;set;}
+    }
+    
+    public class ContactUpdateData {
+        public String guid;
+        public UserRequest request;
+    }
+    
+    public class AmexEnabledService {
+        public List<String> ainIdentifiers;
+        public String businessJustification;
+        public String cmsPublications;
+        public String comments;
+        public String faxNumber;
+        public List<String> groupIdentifiers;
+        public List<String> iinIdentifiers;
+        public Integer inAppId;
+        public String institutionNames;
+        public Integer jobFunctionId;
+        public Integer newStatusId;
+        public Integer orgId;
+        public Boolean reEnroll;
+        public List<Integer> reportIdentifiers;
+        public Integer sourceId;
+        public String userEnteredOrgNames;
+        public List<String> variableCodeIdentifiers;
+    }
+    
+    public String guid;
+    public Request request;
+    
+    public class Request {
+        public AmexEnabledService amexEnabledService;
+        public AmexEnabledService gnsService;
+        public UserRequest userRequest;
+    }
+    
+    public class UserRequest {
+        public Boolean adminRequest;
+        public String deptName;
+        public String dob;
+        public String email;
+        public String faxNumber;
+        public String firstName;
+        public Integer institutionId;
+        public String institutionType;
+        public String jobFunctionIDs;
+        public String jobTitle;
+        public String lastName;
+        public String managerEmail;
+        public String managerFirstName;
+        public String managerJobTitle;
+        public String managerLastName;
+        public String managerMiddleName;
+        public String managerPhone;
+        public String middleInitial;
+        public String motherName;
+        public Integer orgId;
+        public String orgName;
+        public String personId;
+        public String phoneNumber;
+        public String publicGuid;
+        public Integer regionId;
+        public String regionName;
+        public Integer sourceId;
+        public String userComment;
+        public String userEnteredOrgName;
+        public UserRequest(	Boolean adminRequest,String deptName,String dob,String email,String faxNumber,String firstName,
+                           Integer institutionId,String institutionType,String jobFunctionIDs,String jobTitle,String lastName,
+                           String managerEmail,String managerFirstName,String managerJobTitle,String managerLastName,
+                           String managerMiddleName,String managerPhone,String middleInitial,String motherName,
+                           Integer orgId,String orgName,String personId,String phoneNumber,String publicGuid,Integer regionId,
+                           String regionName,Integer sourceId,String userComment,String userEnteredOrgName){
+                               
+                               this.adminRequest=adminRequest;
+                               this.deptName=deptName;
+                               this.dob=dob;
+                               this.email= email;
+                               this.faxNumber=faxNumber;
+                               this.firstName=firstName;
+                               this.institutionId=institutionId;
+                               this.institutionType=institutionType;
+                               this.jobFunctionIDs=jobFunctionIDs;
+                               this.jobTitle=jobTitle;
+                               this.lastName=lastName;
+                               this.managerEmail=managerEmail;
+                               this.managerFirstName=managerFirstName;
+                               this.managerJobTitle=managerJobTitle;
+                               this.managerLastName=managerLastName;
+                               this.managerMiddleName=managerMiddleName;
+                               this.managerPhone=managerPhone;
+                               this.middleInitial=middleInitial;
+                               this.motherName=motherName;
+                               this.orgId=orgId;
+                               this.orgName=orgName;
+                               this.personId=personId;
+                               this.phoneNumber=phoneNumber;
+                               this.publicGuid=publicGuid;
+                               this.regionId=regionId;
+                               this.regionName=regionName;
+                               this.sourceId=sourceId;
+                               this.userComment=userComment;
+                               this.userEnteredOrgName = userEnteredOrgName;
+                           }
+        public UserRequest(Contact contactObj,Boolean adminRequest)
+        {
+            this.adminRequest=adminRequest;
+            this.deptName=contactObj.Department;
+            this.dob=String.valueOf(contactObj.Birthdate);
+            this.email= contactObj.Email;
+            this.faxNumber=contactObj.Fax;
+            this.firstName=contactObj.FirstName;
+            //this.institutionId=institutionId;
+            //this.institutionType=institutionType;
+            this.jobFunctionIDs=contactObj.Account.AE_AccountStatus__c;
+            //this.jobTitle=jobTitle;
+            this.lastName=contactObj.LastName;
+            //this.managerEmail=managerEmail;
+            //this.managerFirstName=managerFirstName;
+            //this.managerJobTitle=managerJobTitle;
+            //this.managerLastName=managerLastName;
+            //this.managerMiddleName=managerMiddleName;
+            //this.managerPhone=managerPhone;
+            //this.middleInitial=middleInitial;
+            //this.motherName=motherName;
+            this.orgId=Integer.valueOf(contactObj.Account.GNSwebID__c);
+            this.orgName=contactObj.Account.Name;
+            //this.personId=personId;
+            this.phoneNumber=contactObj.Phone;
+            //this.publicGuid=publicGuid;
+            if(contactObj.Account.Region__c == 'JAPA'){
+                this.regionId = 251;
+            } else if(contactObj.Account.Region__c == 'LAC'){
+                this.regionId = 252;
+            } else if(contactObj.Account.Region__c == 'EMEA'){
+                this.regionId = 253;
+            } else if(contactObj.Account.Region__c == 'North America'){
+                this.regionId = 254;
+            }
+            this.regionName=contactObj.Account.Region__c;
+            this.sourceId=501;
+            //this.userComment=userComment;
+            this.userEnteredOrgName = 'CTS';
+        }
+    }
+    
+    public class RequestResponse{
+        public String status;
+        public Integer statusCode;
+        public String statusDesc;
+        public Integer orgID;
+    }
+    
+    public class GnsService{
+        public String businessJustification;
+        public Integer inAppId;
+        public GnsService(String businessJustification, Integer inAppId){
+            this.businessJustification = businessJustification;
+            this.inAppId = inAppId;
+        }
+    }
+    public class RequestUser{
+        public GnsService gnsService;
+        public UserRequest userRequest;
+        public RequestUser(GnsService gnsService, UserRequest userRequest){
+            this.gnsService = gnsService;
+            this.userRequest = userRequest;
+        }
+    }
+    public Class UserUpdateRequest{
+        public string guid;
+        public RequestUser request;
+    }
+    
+    public class ContactCreateData {
+        public String guid;
+        public RequestUser request;
+    }
+    
+}

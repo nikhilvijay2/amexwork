@@ -1,0 +1,67 @@
+({
+    doInit: function(cmp, event, helper) {
+        var myPageRef = cmp.get("v.pageReference"); 
+        var Id = myPageRef.state.Id__c;
+        var Id2 = myPageRef.state.Id2__c;
+        var exception;
+        console.log(' Id2', Id2);
+        console.log(' Id', Id);
+        if(Id){
+            
+            var action = cmp.get('c.getProcessException');
+        action.setParams({sObjectId :Id});
+            console.log('exception--Id::::', Id);
+        action.setCallback(this, function(res) {
+            var state = res.getState();
+           
+            if ( state === 'SUCCESS') {
+                exception = res.getReturnValue();
+                if (cmp.isValid() && exception) {
+                    
+                    var { accountName } = exception;
+                    var { projectName } = exception;
+                    var { region } = exception;
+                    var { exceptionRTId } = exception;
+
+                    helper.createRecord(cmp, event, helper, accountName, projectName, region, exceptionRTId);
+                }
+            }else {
+                if (state === 'ERROR') {
+                    throw new Error(state)
+                }
+            }
+        }); 
+        $A.enqueueAction(action); 
+        } else if( Id2){
+            console.log('Id2::::', Id2);
+        
+         var exceptionReq;
+        var action = cmp.get('c.getRequestException');
+        action.setParams({requestId :Id2});
+            console.log('request--id2::::',Id2);
+         action.setCallback(this, function(res) {
+            var state = res.getState();
+             console.log('STATE '+state);
+           
+            if ( state === 'SUCCESS') {
+                
+                exceptionReq = res.getReturnValue();
+                if (cmp.isValid() && exceptionReq) {
+                    
+                    var { accName } = exceptionReq;
+                    var { requestName } = exceptionReq;
+                    var { exceptionRTId } = exceptionReq;
+                   
+                    helper.createExceptionRecord(cmp, event, helper, accName, requestName, exceptionRTId);
+                }
+            }else {
+                if (state === 'ERROR') {
+                    throw new Error(state)
+                }
+            }
+        }); 
+        $A.enqueueAction(action); 
+        }
+    }
+     
+})

@@ -1,0 +1,20 @@
+/**
+ * Created by ndingari on 12/23/20.
+ */
+.app-block-header {
+    color: #87CEFA;
+
+}
+.text-primary {
+    color: #428bca;
+}
+
+html, .bs {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.btn, button {
+    min-width: unset !important;
+}

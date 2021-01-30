@@ -1,0 +1,55 @@
+({
+    reDirectToUrl: function(cmp, url) {
+        window.location.href = url;
+    },
+    
+    
+    
+    createRecord : function (cmp, event, helper, accName, projName, Region, rtId) {
+        console.log(rtId, ' ', accName, ' ', Region)
+        var createRecordEvent = $A.get("e.force:createRecord");
+        createRecordEvent.setParams({
+            "entityApiName": "Exceptions__c",
+            'defaultFieldValues': {
+                'Region__c' : Region,
+                'recordTypeId': rtId,
+                'Account__c' : accName,
+                'Certification_Project__c' : projName
+                
+                            
+            }, 
+            
+                        
+           /* "panelOnDestroyCallback": function(event) {
+            $A.get('e.force:refreshView').fire();
+            }*/
+  });
+       
+        
+        createRecordEvent.fire();
+        },
+    
+    createExceptionRecord : function (cmp, event, helper, accName, requestName, exceptionRTId) {
+        console.log(exceptionRTId, ' ', accName, ' ', requestName)
+        var createRecordEvent = $A.get("e.force:createRecord");
+        createRecordEvent.setParams({
+            "entityApiName": "Exceptions__c",
+            'defaultFieldValues': {
+                'recordTypeId': exceptionRTId,
+                'Account__c' : accName,
+                'Certification_Request__c' : requestName
+            }, 
+           // "panelOnDestroyCallback": function(event) {
+           // $A.get('e.force:refreshView').fire();
+
+       //}
+  
+            });
+        
+        createRecordEvent.fire();
+        }
+    
+    
+    
+    
+})

@@ -1,0 +1,18 @@
+<!--
+ - Created by sjaya44 on 2020-12-09.
+ -->
+
+<!-- Captcha Lwc -->
+<template>
+
+    <lightning-card  title="Captcha">
+        <div>
+           <template for:each={resourceURLs} for:item="url">
+                <img key={url} src={url}/>
+            </template>
+
+            <lightning-input id="input" label={label.Captcha} value={enteredCode}
+                             type="text" maxlength="6" max="6" class="slds-small-size_medium testClass" ></lightning-input>
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,47 @@
+/**
+ * Created by nross5 on 10/15/18.
+ */
+({
+    validateForm: function(component, event){
+        var userFormFields = component.find("portalUserFormField");
+        var allValid = userFormFields.reduce(function (validSoFar, inputCmp) {
+            inputCmp.showHelpMessageIfInvalid();
+            return validSoFar && inputCmp.get("v.validity").valid;
+        }, true);
+        return allValid;
+    },
+    submitUser: function (component, event) {
+        var action = component.get("c.createCommunityUser");
+        var newUser = component.get("v.portalUser");
+        action.setParams({
+            "accountId": component.get("v.accountId"),
+            "userJsonString": JSON.stringify(newUser)
+        });
+        action.setCallback(this, function (response) {
+            if (response.getState() === "SUCCESS" && component.isValid()) {
+                this.configureMessage(component, {
+                    "showMessage": true,
+                    "alertType": "alert-positive",
+                    "alertIcon": "dls-icon-success",
+                    "message": $A.get("$Label.c.CPP_NewUser_Success")
+                });
+                component.set("v.isSubmitted", true);
+            } else {
+                var errors = response.getError();
+                this.configureMessage(component, {
+                    "showMessage": true,
+                    "alertType": "alert-warn",
+                    "alertIcon": "dls-icon-warning",
+                    "message": errors[0].message
+                });
+            }
+        });
+        $A.enqueueAction(action);
+    },
+    configureMessage: function(component, toastConfig){
+        component.set("v.message", toastConfig.message);
+        component.set("v.showMessage", toastConfig.showMessage);
+        component.set("v.alertType", toastConfig.alertType);
+        component.set("v.alertIcon", toastConfig.alertIcon);
+    }
+});

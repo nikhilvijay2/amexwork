@@ -1,0 +1,32 @@
+/**
+ * Created by ndingari on 1/7/21.
+ */
+
+ .c-form-control-warning {
+   background-image: url(/resource/DLS_5_8_0/img/svg/icon/red/dls-icon-warning-filled.svg);
+   background-repeat: no-repeat;
+   background-position: right;
+   background-size: 1.71875rem;
+  /* padding-right: 3.125rem;*/
+   background-color: #fbefec;
+   border-color: #b42c01;
+   color: inherit;
+    box-sizing: border-box;
+    padding: 12px 20px;
+    margin: 8px 0;
+}
+lightning-input input {
+   /*background-image: url(/resource/DLS_5_8_0/img/svg/icon/green/dls-icon-success.svg);
+   background-repeat: no-repeat;
+   background-position: right;
+   background-size: 1.71875rem;
+    padding-right: 3.125rem;
+   background-color: #FFFFFF;
+   color: inherit;
+   box-sizing: border-box;
+   padding: 12px 20px;
+   margin: 8px 0;*/
+   border-color: #43A34C ;
+
+
+}

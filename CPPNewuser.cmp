@@ -1,0 +1,76 @@
+<!--
+ - Created by nross5 on 10/15/18.
+ -->
+
+<aura:component description="CPP_NewUser" controller="CommunityUserRegistrationController">
+    <ltng:require styles="{!$Resource.DLS_5_8_0 + '/styles/dls.css'}"/>
+    <!-- Attrbutes -->
+    <aura:attribute name="accountId" type="Id" default=""/>
+    <aura:attribute name="portalUser" type="User" default="{'sobjectType' : 'User'}"/>
+    <aura:attribute name="isLoading" type="Boolean" default="false"/>
+    <aura:attribute name="showMessage" type="Boolean" default="false"/>
+    <aura:attribute name="message" type="String" default="" />
+    <aura:attribute name="alertType" type="String" default=""/>
+    <aura:attribute name="alertIcon" type="String" default=""/>
+    <aura:attribute name="isSubmitted" type="Boolean" default="false" />
+    <!-- Handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler name="captchaResult" event="c:CaptchaResult" action="{!c.handleOnSubmit}"/>
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <!-- Component -->
+    <div class="card">
+        <aura:if isTrue="{!v.isLoading}">
+            <lightning:spinner/>
+        </aura:if>
+        <aura:renderIf isTrue="{!v.showMessage}">
+            <c:ComponentAlert alertType="{!v.alertType}" iconType="{!v.alertIcon}" alertMessage="{!v.message}"/>
+        </aura:renderIf>
+        <div class="card-block">
+            <h1 class="heading-5 h2">{!$Label.c.CPP_NewUserRegistration}</h1>
+            <p class="body">
+                    {!$Label.c.CPP_NewUser_Header}
+            </p>
+            <form class="slds-form slds-form_compound">
+                <div class="col-md-12">
+                    <div class="form-group slds-grid">
+                        <lightning:input aura:id="portalUserFormField" class="col-md-4"
+                                         label="{!$Label.c.CPP_NewUser_AccId}" required="true" type="text"
+                                         value="{!v.accountId}" disabled="{!v.isSubmitted}"/>
+                        <lightning:input aura:id="portalUserFormField" class="col-md-4"
+                                         label="{!$Label.c.CPP_NewUser_Firstname}" required="true" type="text"
+                                         value="{!v.portalUser.firstName}" disabled="{!v.isSubmitted}"/>
+                        <lightning:input aura:id="portalUserFormField" class="col-md-4"
+                                         label="{!$Label.c.CPP_NewUser_Lastname}" required="true" type="text"
+                                         value="{!v.portalUser.lastName}" disabled="{!v.isSubmitted}"/>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="ofrm-group slds-grid">
+                        <lightning:input aura:id="portalUserFormField" class="col-md-4"
+                                         label="{!$Label.c.CPP_NewUser_Email}" required="true" type="email"
+                                         value="{!v.portalUser.email}" disabled="{!v.isSubmitted}"/>
+                        <lightning:input aura:id="portalUserFormField" class="col-md-4"
+                                         label="{!$Label.c.Phone}" required="true" type="tel"
+                                         value="{!v.portalUser.phone}" disabled="{!v.isSubmitted}"/>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <c:Captcha aura:id="captcha"/>
+                </div>
+                <div class="col-md-8 pad-b">
+                    <ui:inputCheckbox aura:id="tnc" value="{!v.portalUser.Terms_Cond_Acceptance__c}"
+                                      class="flex-inline" required="true"/>
+                    &nbsp;{!$Label.c.CPP_NewUser_TnC_1}&nbsp;
+                    <lightning:formattedURL label="{!$Label.c.CPP_NewUser_TnC_2}" value="{!$Resource.CPPTermsandCondition}"
+                                            target="_blank"/>
+                   &nbsp;{!$Label.c.CPP_NewUser_TnC_3}
+                </div>
+                <div class="col-md-12">
+                    <lightning:button disabled="{!v.isSubmitted || !v.portalUser.Terms_Cond_Acceptance__c}" variant="brand"
+                                     name="submit" label="{!$Label.c.Submit}" class="btn btn-primary btn-sm" onclick="{!c.handleCaptcha}"/>
+                </div>
+            </form>
+        </div>
+    </div>
+</aura:component>

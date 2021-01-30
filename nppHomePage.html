@@ -1,0 +1,179 @@
+<!--
+ - Created by ndingari on 12/23/20.
+ -->
+
+<!-- Npphomepage -->
+<template>
+    <template if:true={onclick}>
+        <br><div class="slds-text-heading_medium text-primary">
+        <b>Overview</b></div><br>
+        <div>The Global Merchant Pricing Change (GMPC) tool is used by the regional GNS Operations Teams
+            to communicate pricing change requests for globally contracted merchants</div>&nbsp;
+        <div class="slds-text-heading_medium text-primary"><b>My GMPC Requests</b></div>
+        <br>
+        <div>Below are GMPC requests that have been assigned to you. Click the request number links for further details.</div>
+        <br>
+        <lightning-datatable
+                key-field=id
+                data={data}
+                columns={cols}
+                hide-checkbox-column="true"
+                onrowaction={viewRecord}></lightning-datatable>
+        <div class="slds-grid slds-grid--align-spread slds-p-top--small">
+            <div class="slds-col--padded">
+                <lightning-button label="Previous" icon-name="utility:chevronleft" onclick={handlePrevious} disabled={noPrev}>
+                </lightning-button>
+            </div>
+            <div class="slds-col--padded">
+                Page {page} of {totalPage}
+            </div>
+            <div class="slds-col--padded">
+                <lightning-button label="Next" icon-name="utility:chevronright" icon-position="right"
+                                  onclick={handleNext} disabled={noNext}>
+                </lightning-button>
+            </div>
+        </div>
+    </template>
+
+
+    <template if:true={detailpage}>
+        <br>
+        <lightning-record-edit-form
+                object-api-name="Global_Merchant_Pricing_Change__c"
+                record-id={gmpcId}
+                density="compact"
+                onsubmit={handleSubmit}
+                onsuccess={handleSuccess}
+                onerror={handleError}
+                id="gmpcForm">
+            <div class="slds-col--padded">
+                <lightning-button label="Back" icon-position="right"
+                                  onclick={handleBack} ></lightning-button>
+                <lightning-button  label="Add Attachments" title="Add Attachments"
+                                   onclick={handleClick} disabled={disableButton} class="slds-m-left_x-small"></lightning-button>
+                <lightning-button  label="Add Comments" title="Add Comments"
+                                   onclick={handleComments} disabled={disableButton} class="slds-m-left_x-small"></lightning-button>
+                <lightning-button  label="Partially Completed - AXP Input Required" title="AXP Input Required"
+                                   onclick={handlePartialCompleted} disabled={disableButton} class="slds-m-left_x-small"></lightning-button>
+                <lightning-button  label="Fully Completed" value={status} title="Fully Completed"
+                                   onclick= {handleFullyCompleted} disabled={disableButton} class="slds-m-left_x-small"></lightning-button>
+            </div>
+            <br>
+            <div class="slds-text-heading_medium text-primary"><b>Request {name}</b></div><br>
+            <lightning-messages></lightning-messages>
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col--padded slds-size--1-of-1 slds-medium-size--1-of-2" >
+                    <lightning-input-field field-name="Merchant_Name__c" disabled={hide}></lightning-input-field></div>
+                <div class="slds-col--padded slds-size--1-of-1 slds-medium-size--1-of-2" >
+                    <lightning-input-field field-name="Requested_Pricing_Change_Effective_Date__c" disabled={hide}></lightning-input-field></div>
+                <div class="slds-col--padded slds-size--1-of-1 slds-medium-size--1-of-2" >
+                    <lightning-input-field field-name="Status__c" value={statusvalue} disabled={hide}></lightning-input-field></div>
+                <div class="slds-col--padded slds-size--1-of-1 slds-medium-size--1-of-2" >
+                    <lightning-output-field field-name="CreatedDate" disabled={hide}></lightning-output-field></div>
+
+</div>
+            <div if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+            </div>
+        </lightning-record-edit-form>
+    </template>
+
+            <template if:true={markPartialCompleted}>
+                <lightning-record-edit-form
+                        object-api-name="Global_Merchant_Pricing_Change__c"
+                        record-id={gmpcId}
+                        density="compact"
+                        onsubmit={handleSubmit}
+                        onsuccess={handleSuccess}
+                        onerror={handleError}
+                        id="gmpcstatusForm">
+                    <br>
+                    <div class="slds-text-heading_medium text-primary">
+                       <b>AXP Input Required: {name}</b>
+                    </div>
+                <lightning-layout-item padding="around-small" size="8" class="slds-hidden">
+                    <lightning-input-field field-name="Status__c" value="Partially Completed - AXP Input Required" ></lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="8">
+                    <lightning-input-field field-name="Pricing_Change_Resolution__c"></lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="8">
+                    <lightning-input-field field-name="Pricing_Change_Resolution_Comments__c"></lightning-input-field>
+                </lightning-layout-item>
+                <div class="slds-align--absolute-center">
+                    <lightning-button
+                            class="slds-p-around_small"
+                            variant="brand"
+                            label="Submit"
+                            onclick={handleSubmitAction}></lightning-button>
+                    <lightning-button
+                            class="slds-p-around_small"
+                            variant="brand"
+                            label="Cancel"
+                            onclick={handleCancelAction}></lightning-button>
+                </div>
+                </lightning-record-edit-form>
+            </template>
+        <br>
+        <template if:true={com}>
+            <div class="slds-text-heading_medium text-primary"><b>Comments</b></div>
+            <lightning-datatable
+                    key-field=id
+                    data={comList}
+                    columns={comcols}
+                    hide-checkbox-column
+                    onrowaction={viewcomRecord}
+                    onclick={opencomdetail}
+            ></lightning-datatable>
+        </template>
+        <br>
+        <template if:true={att}>
+            <div class="slds-text-heading_medium text-primary"><b>Attachments</b></div>
+            <lightning-datatable
+                    key-field=id
+                    data={attList}
+                    columns={attcols}
+                    hide-checkbox-column = 'false'
+                    onrowaction={viewattRecord}
+            ></lightning-datatable>
+        </template>
+
+        <template if:true={renderAttachmentModal}>
+            <c-aesk_attachment  onsuccess={getLatestAttachments} oncancel={cancelModal} parentid={recId}></c-aesk_attachment>
+        </template>
+
+        <!--Comments Section -->
+        <template if:true= {renderAddComments}>
+            <lightning-record-edit-form
+                    object-api-name="Global_Merchant_Pricing_Change_Comments__c"
+                    density="compact"
+                    onsubmit={handleSubmit}
+                    onsuccess={handleSuccess}
+                    onerror={handleError}
+                    id="inquirycommentForm">
+                <lightning-messages></lightning-messages>
+                <div class="slds-text-heading_medium text-primary">
+                   <b>Add a comment: {name}</b>  </div>
+                <lightning-layout multiple-rows="true">
+                    <lightning-layout-item padding="around-small" class="slds-hidden" size="8">
+                        <lightning-input-field field-name="Parent_Record_Number__c" value={gmpcId}></lightning-input-field>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small" size="8">
+                        <lightning-input-field field-name="Comment__c" required></lightning-input-field>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small" size="8">
+                        <lightning-input-field field-name="Action__c" required></lightning-input-field>
+                    </lightning-layout-item></lightning-layout>
+                <lightning-button
+                        class="slds-m-left_x-small"
+                        type="submit"
+                        label="Save"></lightning-button>
+                <lightning-button
+                        class="slds-m-left_x-small"
+                        type="cancel"
+                        label="Cancel"
+                        onclick={CancelCommentAction}></lightning-button>
+            </lightning-record-edit-form>
+        </template>
+
+</template>

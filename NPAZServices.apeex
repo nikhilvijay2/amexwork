@@ -1,0 +1,173 @@
+/**
+* Created by renuka.n01 on 9/1/2020.
+*/
+
+public with sharing class NPAZServices {
+    
+    @AuraEnabled
+    @future(callout = true)
+    public static void createGNSWebContact(Id sObjectId){
+        NPAZModel.ContactCreateData con;
+        ProcessContact__c proContact = [select Id, Name,Last_Name__c,First_Name__c,Data_Sent_to_NPAZ__c, Email__c,Alt_Phone_c__c, 
+                                        Date_of_Birth__c,Department__c,Account__r.GNSwebID__c , Account__r.Name, Account__r.SPP_Source__c , Account__r.Region__c 
+                                        from ProcessContact__c Where Id =:sObjectId OR Account__c =: sObjectId ];
+        if(proContact != null){
+            if(proContact.Account__r.SPP_Source__c == true && proContact.Account__r.GNSwebID__c != null && proContact.Data_Sent_to_NPAZ__c == false) {
+                GNWCallout(proContact);
+            } else if( proContact.Data_Sent_to_NPAZ__c == false){
+                GNWCallout(proContact);
+            }
+        }
+    }
+    
+    public static void GNWCallout(ProcessContact__c proContact){
+        try {
+            system.debug('proContact' + proContact);
+                NPAZModel.ContactCreateData payload = new NPAZModel.ContactCreateData();
+        if(proContact.Account__c != null){
+             payload = createRequestWithMinimalFields( proContact);
+        } else{
+            payload = createRequestWithMinimalFieldsForAccount(proContact);
+        }
+               
+                system.debug('!!! payload ' +payload);
+                HttpResponse response = NPAZCallout.contactSyncUpCallout(payload);
+                system.debug('!!! success callout : '+ response );
+                
+                if (response != null && ('OK').Equals(String.valueOf(response.getStatus())) && ('200').Equals(String.valueOf(response.getStatusCode()))) {
+                    system.debug('success');
+                    proContact.Data_Sent_to_NPAZ__c = true;
+                    update proContact;
+                    createActionLogs(response, 'Contact Sync is Successful!!!');
+                    
+                }else{
+                    system.debug('fail');
+                    system.debug('code'+response.getStatus()+response.getStatusCode());
+                    createActionLogs(response, 'Contact Sync is a Failure!!!');
+                }
+        }catch(Exception ex) {
+            system.debug('!!! ex : '+ ex.getMessage() + ex.getLineNumber());
+        }
+    }
+    @future(callout = true)
+    public static void enrollService(Id pcId){
+        String payloadNew = '{ "guid": "762f912d757e610df5fadd867946589b", "request": { "ainIdentifiers": [ "" ], "businessJustification": "BJ-NPAZ-API-Testing", "cmsPublications": "publ1,publ2", "comments": "CS-NPAZ-API-Testing", "faxNumber": "8754020609", "groupIdentifiers": [ "" ], "iinIdentifiers": [ "" ], "inAppId": "2", "institutionNames": "", "jobFunctionId": "15", "newStatusId": "101", "orgId": "1", "reEnroll": true, "reportIdentifiers": [ 0 ], "sourceId": "501", "userEnteredOrgNames": "Orgname-NPAZ-API-Testing", "variableCodeIdentifiers": [ "602,903;602,904;" ] } }';
+        Callout__mdt mdt = CalloutServices.fetchCallout('NPAZUserServiceEnroll');
+        system.debug('!!! mdt :'+ mdt);
+        Map<String, String> headers = NPAZCallout.generateReqHeader(mdt.Routing_Path__c);
+        system.debug('!!! headers :'+ headers);
+        HttpResponse response= NPAZCallout.makeCallout('POST', headers, payloadNew);
+        system.debug('!!! response :'+ response);
+        if(response != null && ('OK').Equals(String.valueOf(response.getStatus()))){
+            createActionLogs(response, 'Contact Enroll Service  is Successful!!!');
+            ProcessContact__c proContact = new ProcessContact__c (Id =pcId);
+            proContact.EnrollService__c= true;
+            update proContact;
+        }
+    
+    }
+    public static NPAZModel.ContactCreateData createRequestWithMinimalFields( ProcessContact__c proContact){
+        NPAZModel.ContactCreateData con = new NPAZModel.ContactCreateData();
+        
+        Integer regionId;
+        String phone;
+        String dob;
+        if(proContact.Alt_Phone_c__c == null){
+            phone = '1234567890';
+        }
+        if(proContact.Date_of_Birth__c == null){
+            dob = '2020-09-01';
+        }
+        if(proContact.Account__r.Region__c == 'JAPA'){
+            regionId = 251;
+        } else if(proContact.Account__r.Region__c == 'LAC'){
+            regionId = 252;
+        } else if(proContact.Account__r.Region__c == 'EMEA'){
+            regionId = 253;
+        } else if(proContact.Account__r.Region__c == 'North America'){
+            regionId = 254;
+        }
+        system.debug('regionId' +regionId);
+        con.guid = '204c239b2734c7df85f496953786c3da';
+        system.debug('test');
+        NPAZModel.GnsService gnsService = new NPAZModel.GnsService('Test',1);
+        NPAZModel.UserRequest userRequest = new NPAZModel.UserRequest(false,proContact.Department__c,
+                                                                      '2020-09-01',
+                                                                      proContact.Email__c,'4752989446', proContact.First_Name__c,
+                                                                      1,'Network','201','Test',
+                                                                      proContact.Last_Name__c.toUpperCase(),'test@test.com','Test','Test',
+                                                                      'Test','T','4752989446','T','Test',
+                                                                      Integer.valueOf(proContact.Account__r.GNSwebID__c),
+                                                                      proContact.Account__r.Name,
+                                                                      '',proContact.Alt_Phone_c__c,
+                                                                      '409d6da5ef6aa23fc468a8131b65c8e0',regionid,proContact.Account__r.Region__c,
+                                                                      502, 'Test','Test' ); 
+        
+        con.request = new NPAZModel.RequestUser(gnsService, userRequest);
+        return con;
+        
+    }
+    
+    public static NPAZModel.ContactCreateData createRequestWithMinimalFieldsForAccount( ProcessContact__c proContact){
+        NPAZModel.ContactCreateData con = new NPAZModel.ContactCreateData();
+        
+        Integer regionId;
+        String phone;
+        String dob;
+        if(proContact.Alt_Phone_c__c == null){
+            phone = '1234567890';
+        }
+        if(proContact.Date_of_Birth__c == null){
+            dob = '2020-09-01';
+        }
+        if(proContact.Account__r.Region__c == 'JAPA'){
+            regionId = 251;
+        } else if(proContact.Account__r.Region__c == 'LAC'){
+            regionId = 252;
+        } else if(proContact.Account__r.Region__c == 'EMEA'){
+            regionId = 253;
+        } else if(proContact.Account__r.Region__c == 'North America'){
+            regionId = 254;
+        }
+        system.debug('regionId' +regionId);
+        con.guid = '204c239b2734c7df85f496953786c3da';
+        system.debug('test');
+        NPAZModel.GnsService gnsService = new NPAZModel.GnsService('Test',1);
+        NPAZModel.UserRequest userRequest = new NPAZModel.UserRequest(false,proContact.Department__c,
+                                                                      '2020-09-01',
+                                                                      proContact.Email__c,'4752989446', proContact.First_Name__c,
+                                                                      1,'Network','201','Test',
+                                                                      proContact.Last_Name__c.toUpperCase(),'test@test.com','Test','Test',
+                                                                      'Test','T','4752989446','T','Test',
+                                                                      9999,
+                                                                      'Test',
+                                                                      '',proContact.Alt_Phone_c__c,
+                                                                      '409d6da5ef6aa23fc468a8131b65c8e0',regionid,'JAPA',
+                                                                      502, 'Test','Test' ); 
+        
+        con.request = new NPAZModel.RequestUser(gnsService, userRequest);
+        return con;
+        
+    }
+    
+    public static void createActionLogs(HttpResponse response, String msg){
+        String name;
+        String origin;
+        String status;
+        String userId;
+        String information;
+        /* Creation of Action Logs */
+        name = 'Amex Enabled';
+        origin = 'Amex Enabled PRISM-GNSWeb Integration - A operation'+' Contact Creation Sync';
+        status = response.getStatus();
+        userId = UserInfo.getUserID();
+        information = response.getstatusCode() + ':' + msg;
+        
+        ActionLogUtil.saveActionLog(name, origin, status, userId, information, null);
+    }
+    
+    
+    
+    
+    
+}

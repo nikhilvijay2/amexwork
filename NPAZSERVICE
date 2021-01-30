@@ -1,0 +1,132 @@
+/**
+* Created by renuka.n01 on 9/1/2020.
+/*if(proContact.Account__c == null && proContact.Data_Sent_to_NPAZ__c == null){ // orphan contact
+
+}
+if(proContact.Account__r.SPP_Source__c == true && proContact.Account__r.GNSwebID__c != null){
+
+}
+*/
+
+public with sharing class NPAZServices {
+    
+    @AuraEnabled
+    public static void createGNSWebContact(Id proId){
+        NPAZModel.ContactCreateData con;
+        ProcessContact__c proContact = [select Id, Name,Last_Name__c,First_Name__c,Data_Sent_to_NPAZ__c, Email__c,
+                                        Date_of_Birth__c,Department__c,Account__r.GNSwebID__c , Account__r.Name, Account__r.SPP_Source__c 
+                                        from ProcessContact__c Where Id =:proId];
+        
+        if(proContact.Account__r.SPP_Source__c == true && proContact.Account__r.GNSwebID__c != null && proContact.Data_Sent_to_NPAZ__c == false) {
+            system.debug('proContact' + proContact);
+            NPAZModel.RequestResponse response = new NPAZModel.RequestResponse();
+            createRequestWithMinimalFields(proContact);
+            String payload = '{"guid": "204c239b2734c7df85f496953786c3da", "request": {"gnsService": {"businessJustification": "NPAZ API Testing by Nandhini", "inAppId": 1},"userRequest": {"adminRequest": false,"deptName": "NPAZ","dob": "1986-07-17","email": "test@test.com","faxNumber": "8754020609","firstName": "Nandhini","institutionId": 1,"institutionType": "Network","jobFunctionIDs": "201","jobTitle": "TechnicalLead","lastName": "Mahalingam","managerEmail": "TTest@test.com","managerFirstName": "Dean","managerJobTitle": "Program Manager","managerLastName": "Pullen","managerMiddleName": "J","managerPhone": "1234567890","middleInitial": "K","motherName": "Push","orgId": 1,"orgName": "AMEX","personId": "230549","phoneNumber": "9952666202","publicGuid": "409d6da5ef6aa23fc468a8131b65c8e0","regionId": 1,"regionName": "Sussex","sourceId": 501,"userComment": "NPAZ API Testing by Nandhini","userEnteredOrgName": "CTS"}}}';
+            response = NPAZCallout.contactSyncUpCallout(con);
+             system.debug('success callout');
+            
+            if (response != null && response.statusCode/100 == 2) {
+                system.debug('success');
+                proContact.Data_Sent_to_NPAZ__c = true;
+                update proContact;
+                createActionLogs(response);
+            }else{
+                 system.debug('fail');
+                system.debug('code'+response.status+response.statusCode);
+                createActionLogs(response);
+            }
+        }
+        
+    }
+    
+    public static NPAZModel.ContactCreateData createRequestWithMinimalFields(ProcessContact__c proContact){
+        NPAZModel.ContactCreateData con;
+        con.guid = '63e7gfrtesduhyyeesuyiughy';
+        con.request = new NPAZModel.RequestUser(new NPAZModel.GnsService('',18),
+                                                new NPAZModel.UserRequest(false,proContact.Last_Name__c,
+                                                                          proContact.Department__c,
+                                                                         String.valueOf(proContact.Date_of_Birth__c),
+                                                                         null, proContact.First_Name__c,
+                                                                         null,null,null,null,null,null,null,
+                                                                          null,null,null,null,null,
+                                                                         Integer.valueOf(proContact.Account__r.GNSwebID__c),
+                                                                         proContact.Account__r.Name,
+                                                                         null,proContact.Phone__c,
+                                                                         null,regionid,proContact.Account__r.Region__c,
+                                                                         501, null,null, proContact.Email__c,
+                                                                         proContact.First_Name__c,
+                                                                         Integer.valueOf(proContact.Account__r.GNSwebID__c),
+                                                                         proContact.Account__r.Name)); 
+        con.request.gnsService.businessJustification = 'test';
+        con.request.gnsService.inAppId = 18;
+        con.request.userRequest.adminRequest = false;
+        con.request.userRequest.lastName = proContact.Last_Name__c;
+        con.request.userRequest.deptName = proContact.Department__c;
+        con.request.userRequest.dob= String.valueOf(proContact.Date_of_Birth__c);
+        con.request.userRequest.faxNumber = null;
+        con.request.userRequest.firstName = proContact.First_Name__c;
+        con.request.userRequest.institutionId = null;
+        con.request.userRequest.institutionType = null;
+        con.request.userRequest.jobFunctionIDs = null;
+        con.request.userRequest.jobTitle = null;
+        con.request.userRequest.managerEmail = null;
+        con.request.userRequest.managerFirstName = null;
+        con.request.userRequest.managerJobTitle = null;
+        con.request.userRequest.managerLastName = null;
+        con.request.userRequest.managerMiddleName = null;
+        con.request.userRequest.managerPhone = null;
+        con.request.userRequest.middleInitial = null;
+        con.request.userRequest.motherName = null;
+        con.request.userRequest.orgId = Integer.valueOf(proContact.Account__r.GNSwebID__c);
+        con.request.userRequest.orgName = proContact.Account__r.Name;
+        con.request.userRequest.personId = null;
+        con.request.userRequest.phoneNumber = proContact.Phone__c;
+        con.request.userRequest.publicGuid = null;
+        if(proContact.Account__r.Region__c == 'JAPA'){
+            con.request.userRequest.regionId = 251;
+        } else if(proContact.Account__r.Region__c == 'LAC'){
+            con.request.userRequest.regionId = 252;
+        } else if(proContact.Account__r.Region__c == 'EMEA'){
+            con.request.userRequest.regionId = 253;
+        } else if(proContact.Account__r.Region__c == 'North America'){
+            con.request.userRequest.regionId = 254;
+        }
+        con.request.userRequest.regionName = proContact.Account__r.Region__c;
+        con.request.userRequest.sourceId = 501;
+        con.request.userRequest.userComment = null;
+        con.request.userRequest.userEnteredOrgName = null;
+        
+        con.request.userRequest.email = proContact.Email__c;
+        con.request.userRequest.firstName = proContact.First_Name__c;
+        if(proContact.Account__r.GNSwebID__c != null){
+            con.request.userRequest.orgId = Integer.valueOf(proContact.Account__r.GNSwebID__c);
+        }
+        if(proContact.Account__r.Name != null){
+            con.request.userRequest.orgName = proContact.Account__r.Name;
+        }
+        
+        return con;
+        
+    }
+    
+    public static void createActionLogs(NPAZModel.RequestResponse response){
+        String name;
+        String origin;
+        String status;
+        String userId;
+        String information;
+        /* Creation of Action Logs */
+        name = 'Amex Enabled';
+        origin = 'Amex Enabled PRISM-GNSWeb Integration - A operation'+' Contact Sync';
+        status = response.status;
+        userId = UserInfo.getUserID();
+        information = response.statusCode + ':' + response.statusDesc;
+        
+        ActionLogUtil.saveActionLog(name, origin, status, userId, information, null);
+    }
+    
+    
+    
+    
+    
+}

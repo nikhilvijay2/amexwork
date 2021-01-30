@@ -1,0 +1,9 @@
+/**
+ * Created by srain6 on 2/19/20.
+ */
+
+public interface CSUSyncService {
+	Action_Logs__c generateActionLogs(String actionName);
+	Attachment generateActionLogAttachment(Action_Logs__c actionLog, Map<String, List<String>> errorMap);
+	List<String> generateDatabaseErrorAsStringList(List<Database.Error> dbErrors);
+}
