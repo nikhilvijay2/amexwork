@@ -1,6 +1,4 @@
-/*
- * Created by sjaya44 on 2020-12-09.
- */
+
 
 import {LightningElement,api,wire,track} from 'lwc';
 import Captcha from '@salesforce/label/c.Captcha';
